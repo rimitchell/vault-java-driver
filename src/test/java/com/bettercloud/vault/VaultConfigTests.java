@@ -132,13 +132,9 @@ public class VaultConfigTests {
                 new VaultConfig()
                         .address("address")
                         .token("token")
-                        .engineVersion(1)
-                        .secretsEnginePathMap(testMap)
                         .build();
         assertEquals("address", config.getAddress());
         assertEquals("token", config.getToken());
-        assertEquals("1", config.getGlobalEngineVersion().toString());
-        assertEquals("bar", config.getSecretsEnginePathMap().get("foo"));
     }
 
     /**

@@ -32,7 +32,6 @@ public class SSLTests {
                 .address("https://127.0.0.1:9998")
                 .token("mock_token")
                 .sslConfig(new SslConfig().verify(false))
-                .engineVersion(1)
                 .build();
         final Vault vault = new Vault(vaultConfig);
         final LogicalResponse response = vault.logical().read("secret/hello");
