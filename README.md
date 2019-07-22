@@ -91,25 +91,11 @@ Shortly before its `1.0` release, Vault added a Version 2 of its [Key/Value Secr
 supports some addition features beyond the Version 1 that was the default in earlier Vault builds (e.g. secret rotation, soft deletes, etc).  
 
 Unfortunately, K/V V2 introduces some breaking changes, in terms of both request/response payloads as well as how URL's are constructed 
-for Vault's REST API.  Therefore, version `4.0.0` of this Vault Driver likewise had to introduce some breaking changes, to allow support 
+for Vault's REST API.  Therefore, version `5.0.0` of this Vault Driver likewise had to introduce some breaking changes, to allow support 
 for both K/V versions.
 
-* **If you are using the new K/V V2 across the board**, then no action is needed.  The Vault Driver now assumes this by default.
-  
-* **If you are still using the old K/V V1 across the board**, then you can use the `Vault` class constructor: 
-  `public Vault(final VaultConfig vaultConfig, final Integer engineVersion)`, supplying a `1` as the engine version parameter.
-  constructor, then you can declare whether to use Version 1 or 2 across the board.
-  
-* **If you are using a mix, of some secret paths mounted with V1 and others mounted with V2**, then you have two options:
-
-  * You can explicitly specify your Vault secret paths, and which K/V version each one is using.  Construct your `Vault` objects 
-    with the constructor `public Vault(final VaultConfig vaultConfig, final Boolean useSecretsEnginePathMap, final Integer globalFallbackVersion)`.  
-    Within the `VaultConfig` object, supply a map of Vault secret paths to their associated K/V version (`1` or `2`).
-    
-  * You can rely on the Vault Driver to auto-detect your mounts and K/V versions upon instantiation.  Use the same constructor as above, 
-    but leave the map `null`.  Note that this option requires your authentication credentials to have access to read Vault's `/v1/sys/mounts` 
-    path.
-  
+* **The driver now mimics the vault cli (golang client) and detects if a mount path is V1 or V2**
+ 
 
 SSL Config
 ----------
