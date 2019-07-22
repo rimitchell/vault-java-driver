@@ -38,7 +38,6 @@ public class VaultConfig implements Serializable {
     private Integer readTimeout;
     private int maxRetries;
     private int retryIntervalMilliseconds;
-    private Integer globalEngineVersion;
     private String nameSpace;
     private EnvironmentLoader environmentLoader;
 
@@ -82,20 +81,6 @@ public class VaultConfig implements Serializable {
     }
 
     /**
-     * <p>Sets the KV Secrets Engine version of the Vault server instance.
-     *
-     * <p>If no version is explicitly set, it will be defaulted to version 2, the current version.</p>
-     *
-     * @param globalEngineVersion The Vault KV Secrets Engine version
-     * @return This object, with KV Secrets Engine version populated, ready for additional builder-pattern method calls or else
-     * finalization with the build() method
-     */
-    public VaultConfig engineVersion(final Integer globalEngineVersion) {
-        this.globalEngineVersion = globalEngineVersion;
-        return this;
-    }
-
-    /**
      * <p>Sets the address (URL) of the Vault server instance to which API calls should be sent.
      * E.g. <code>http://127.0.0.1:8200</code>.</p>
      *
@@ -130,34 +115,6 @@ public class VaultConfig implements Serializable {
      */
     public VaultConfig token(final String token) {
         this.token = token;
-        return this;
-    }
-
-    /**
-     * <p>Sets the secrets Engine paths used by Vault.</p>
-     *
-     * @param secretEngineVersions paths to use for accessing Vault secrets.
-     *                             Key: secret path, value: Engine version to use.
-     *                             Example map: "/secret/foo" , "1",
-     *                             "/secret/bar", "2"
-     * @return This object, with secrets paths populated, ready for additional builder-pattern method calls or else finalization with the build() method
-     */
-    public VaultConfig secretsEnginePathMap(final Map<String, String> secretEngineVersions) {
-        this.secretsEnginePathMap = new ConcurrentHashMap<>(secretEngineVersions);
-        return this;
-    }
-    
-    /**
-     * <p>Sets the secrets Engine version be used by Vault for the provided path.</p>
-     *
-     * @param path the path to use for accessing Vault secrets.
-     *             Example "/secret/foo"
-     * @param version The key-value engine version used for this path.
-     * @return This object, with a new entry in the secrets paths map, ready for additional builder-pattern method calls or else finalization with 
-     *         the build() method
-     */
-    public VaultConfig putSecretsEngineVersionForPath(String path, String version) {
-        this.secretsEnginePathMap.put(path, version);
         return this;
     }
 
@@ -235,17 +192,6 @@ public class VaultConfig implements Serializable {
     }
 
     /**
-     * <p>Sets the global Engine version for this Vault Config instance. If no KV Engine version map is provided, use this version
-     * globally.</p>
-     * If the provided KV Engine version map does not contain a requested secret, or when writing new secrets, fall back to this version.
-     *
-     * @param engineVersion The version of the Vault KV Engine to use globally.
-     */
-    void setEngineVersion(final Integer engineVersion) {
-        this.globalEngineVersion = engineVersion;
-    }
-
-    /**
      * <p>This is the terminating method in the builder pattern.  The method that validates all of the fields that
      * has been set already, uses environment variables when available to populate any unset fields, and returns
      * a <code>VaultConfig</code> object that is ready for use.</p>
@@ -320,10 +266,6 @@ public class VaultConfig implements Serializable {
 
     public int getRetryIntervalMilliseconds() {
         return retryIntervalMilliseconds;
-    }
-
-    public Integer getGlobalEngineVersion() {
-        return globalEngineVersion;
     }
 
     public String getNameSpace() {

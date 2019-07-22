@@ -71,62 +71,6 @@ public class Vault {
         if (this.vaultConfig.getNameSpace() != null && !this.vaultConfig.getNameSpace().isEmpty()) {
             logger.info(String.format("The NameSpace %s has been bound to this Vault instance. Please keep this in mind when running operations.", this.vaultConfig.getNameSpace()));
         }
-        if (this.vaultConfig.getSecretsEnginePathMap().isEmpty() && this.vaultConfig.getGlobalEngineVersion() == null) {
-            logger.info("Constructing a Vault instance with no provided Engine version, defaulting to version 2.");
-            this.vaultConfig.setEngineVersion(2);
-        }
-    }
-
-    /**
-     * Construct a Vault driver instance with the provided config settings, and use the provided global KV Engine version for all secrets.
-     *
-     * @param vaultConfig             Configuration settings for Vault interaction (e.g. server address, token, etc)
-     * @param engineVersion           Which version of the Key/Value Secret Engine to use globally (i.e. 1 or 2)
-     */
-    public Vault(final VaultConfig vaultConfig, final Integer engineVersion) {
-        if (engineVersion < 1 || engineVersion > 2) {
-            throw new IllegalArgumentException("The Engine version must be '1' or '2', the version supplied was: '"
-                    + engineVersion + "'.");
-        }
-        vaultConfig.setEngineVersion(engineVersion);
-        this.vaultConfig = vaultConfig;
-        if (this.vaultConfig.getNameSpace() != null && !this.vaultConfig.getNameSpace().isEmpty()) {
-            logger.info(String.format("The Namespace %s has been bound to this Vault instance. Please keep this in mind when running operations.", this.vaultConfig.getNameSpace()));
-        }
-    }
-
-    /**
-     * Construct a Vault driver instance with the provided config settings.
-     *
-     * @param vaultConfig             Configuration settings for Vault interaction (e.g. server address, token, etc)
-     *                                If the Secrets engine version path map is not provided, or does not contain the
-     *                                requested secret, fall back to the global version supplied.
-     * @param useSecretsEnginePathMap Whether to use a provided KV Engine version map from the Vault config, or generate one.
-     *                                If a secrets KV Engine version map is not supplied, use Vault APIs to determine the
-     *                                KV Engine version for each secret. This call requires admin rights.
-     * @param globalFallbackVersion   The Integer version of the KV Engine to use as a global fallback.
-     *
-     * @throws VaultException         If any error occurs
-     */
-    public Vault(final VaultConfig vaultConfig, final Boolean useSecretsEnginePathMap, final Integer globalFallbackVersion)
-            throws VaultException {
-        this.vaultConfig = vaultConfig;
-        if (this.vaultConfig.getNameSpace() != null && !this.vaultConfig.getNameSpace().isEmpty()) {
-            logger.info(String.format("The Namespace %s has been bound to this Vault instance. Please keep this in mind when running operations.", this.vaultConfig.getNameSpace()));
-        }
-        this.vaultConfig.setEngineVersion(globalFallbackVersion);
-        if (useSecretsEnginePathMap && this.vaultConfig.getSecretsEnginePathMap().isEmpty()) {
-            try {
-                logger.info("No secrets Engine version map was supplied, attempting to generate one.");
-                final Map<String, String> secretsEnginePathMap = collectSecretEngineVersions();
-                assert secretsEnginePathMap != null;
-                this.vaultConfig.getSecretsEnginePathMap().putAll(secretsEnginePathMap);
-            } catch (Exception e) {
-                throw new VaultException(String.format("An Engine KV version map was not supplied, and unable to determine " +
-                        "KV Engine " +
-                        "version, " + "due to exception: %s", e.getMessage() + ". Do you have admin rights?"));
-            }
-        }
     }
 
     /**
