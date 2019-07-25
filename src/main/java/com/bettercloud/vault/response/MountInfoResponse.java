@@ -56,11 +56,11 @@ public class MountInfoResponse extends VaultResponse {
             JsonObject jsonObject = Json.parse(jsonString).asObject();
             this.dataObject = jsonObject.get("data").asObject();
 
-            this.mountPath = jsonObject.get("path").asString();
+            this.mountPath = this.dataObject.get("path").asString();
 
-            final JsonObject optionObject = jsonObject.get("options").asObject();
+            final JsonObject optionObject = this.dataObject.get("options").asObject();
             if( !optionObject.isNull() ) {
-                this.version = Integer.parseInt(optionObject.get("versions").asString());
+                this.version = Integer.parseInt(optionObject.get("version").asString());
             } else {
                 this.version = 1;
             }
