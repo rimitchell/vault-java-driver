@@ -157,32 +157,32 @@ public class Logical {
 
     public LogicalResponse write(final String path, final Map<String, Object> nameValuePairs) throws VaultException {
         int retryCount = 0;
+        
+        JsonObject requestJson = Json.object();
+        if (nameValuePairs != null) {
+            for (final Map.Entry<String, Object> pair : nameValuePairs.entrySet()) {
+                final Object value = pair.getValue();
+                if (value == null) {
+                    requestJson = requestJson.add(pair.getKey(), (String) null);
+                } else if (value instanceof Boolean) {
+                    requestJson = requestJson.add(pair.getKey(), (Boolean) pair.getValue());
+                } else if (value instanceof Integer) {
+                    requestJson = requestJson.add(pair.getKey(), (Integer) pair.getValue());
+                } else if (value instanceof Long) {
+                    requestJson = requestJson.add(pair.getKey(), (Long) pair.getValue());
+                } else if (value instanceof Float) {
+                    requestJson = requestJson.add(pair.getKey(), (Float) pair.getValue());
+                } else if (value instanceof Double) {
+                    requestJson = requestJson.add(pair.getKey(), (Double) pair.getValue());
+                } else {
+                    requestJson = requestJson.add(pair.getKey(), pair.getValue().toString());
+                }
+            }
+        }
+        
+        final MountInfoResponse mountInfo = isKVv2(path, config);
         while (true) {
             try {
-                JsonObject requestJson = Json.object();
-                if (nameValuePairs != null) {
-                    for (final Map.Entry<String, Object> pair : nameValuePairs.entrySet()) {
-                        final Object value = pair.getValue();
-                        if (value == null) {
-                            requestJson = requestJson.add(pair.getKey(), (String) null);
-                        } else if (value instanceof Boolean) {
-                            requestJson = requestJson.add(pair.getKey(), (Boolean) pair.getValue());
-                        } else if (value instanceof Integer) {
-                            requestJson = requestJson.add(pair.getKey(), (Integer) pair.getValue());
-                        } else if (value instanceof Long) {
-                            requestJson = requestJson.add(pair.getKey(), (Long) pair.getValue());
-                        } else if (value instanceof Float) {
-                            requestJson = requestJson.add(pair.getKey(), (Float) pair.getValue());
-                        } else if (value instanceof Double) {
-                            requestJson = requestJson.add(pair.getKey(), (Double) pair.getValue());
-                        } else {
-                            requestJson = requestJson.add(pair.getKey(), pair.getValue().toString());
-                        }
-                    }
-                }
-                
-                final MountInfoResponse mountInfo = isKVv2(path, config);
-
                 // Make an HTTP request to Vault
                 final RestResponse restResponse = new Rest()//NOPMD
                         .url(config.getAddress() + "/v1/" + adjustPathForReadOrWrite(path, mountInfo))
