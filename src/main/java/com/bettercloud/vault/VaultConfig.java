@@ -39,7 +39,6 @@ public class VaultConfig implements Serializable {
     private int prefixPathDepth = 1;
     private int maxRetries;
     private int retryIntervalMilliseconds;
-    private Integer globalEngineVersion;
     private String nameSpace;
     private EnvironmentLoader environmentLoader;
 
@@ -83,20 +82,6 @@ public class VaultConfig implements Serializable {
     }
 
     /**
-     * <p>Sets the KV Secrets Engine version of the Vault server instance.
-     *
-     * <p>If no version is explicitly set, it will be defaulted to version 2, the current version.</p>
-     *
-     * @param globalEngineVersion The Vault KV Secrets Engine version
-     * @return This object, with KV Secrets Engine version populated, ready for additional builder-pattern method calls or else
-     * finalization with the build() method
-     */
-    public VaultConfig engineVersion(final Integer globalEngineVersion) {
-        this.globalEngineVersion = globalEngineVersion;
-        return this;
-    }
-
-    /**
      * <p>Sets the address (URL) of the Vault server instance to which API calls should be sent.
      * E.g. <code>http://127.0.0.1:8200</code>.</p>
      *
@@ -131,34 +116,6 @@ public class VaultConfig implements Serializable {
      */
     public VaultConfig token(final String token) {
         this.token = token;
-        return this;
-    }
-
-    /**
-     * <p>Sets the secrets Engine paths used by Vault.</p>
-     *
-     * @param secretEngineVersions paths to use for accessing Vault secrets.
-     *                             Key: secret path, value: Engine version to use.
-     *                             Example map: "/secret/foo" , "1",
-     *                             "/secret/bar", "2"
-     * @return This object, with secrets paths populated, ready for additional builder-pattern method calls or else finalization with the build() method
-     */
-    public VaultConfig secretsEnginePathMap(final Map<String, String> secretEngineVersions) {
-        this.secretsEnginePathMap = new ConcurrentHashMap<>(secretEngineVersions);
-        return this;
-    }
-
-    /**
-     * <p>Sets the secrets Engine version be used by Vault for the provided path.</p>
-     *
-     * @param path the path to use for accessing Vault secrets.
-     *             Example "/secret/foo"
-     * @param version The key-value engine version used for this path.
-     * @return This object, with a new entry in the secrets paths map, ready for additional builder-pattern method calls or else finalization with
-     *         the build() method
-     */
-    public VaultConfig putSecretsEngineVersionForPath(String path, String version) {
-        this.secretsEnginePathMap.put(path, version);
         return this;
     }
 
@@ -209,58 +166,6 @@ public class VaultConfig implements Serializable {
     }
 
     /**
-     * <p>Set the "path depth" of the prefix path.  Normally this is just
-     * 1, to correspond to one path element in the prefix path.  To use
-     * a longer prefix path, set this value.</p>
-     *
-     * @param prefixPathDepth integer number of path elements in the prefix path
-     * @return VaultConfig
-     */
-    public VaultConfig prefixPathDepth(int prefixPathDepth) {
-       if (prefixPathDepth < 1) {
-          throw new IllegalArgumentException("pathLength must be > 1");
-       }
-
-       this.prefixPathDepth = prefixPathDepth;
-       return this;
-    }
-
-
-    /**
-     * <p>Set the "path depth" of the prefix path, by explicitly specifying
-     * the prefix path, e.g., "foo/bar/blah" would set the prefix path depth
-     * to 3.
-     *
-     * @param prefixPath string prefix path, with or without initial or final forward slashes
-     * @return VaultConfig
-     */
-    public VaultConfig prefixPath(String prefixPath) {
-       int orig = 0;
-       int pos;
-       int countElements = 0;
-       int pathLen = prefixPath.length();
-
-       if (pathLen == 0) {
-          throw new IllegalArgumentException("can't use an empty path");
-       }
-
-       while ((orig < pathLen) &&
-              ((pos = prefixPath.indexOf('/',orig)) >= 0)) {
-          countElements++;
-          orig = pos+1;
-       }
-
-       if (prefixPath.charAt(0) == '/') {
-          countElements--;
-       }
-       if (prefixPath.charAt(pathLen-1) == '/') {
-          countElements--;
-       }
-
-       return prefixPathDepth(countElements+1);
-    }
-
-    /**
      * <p>Sets the maximum number of times that an API operation will retry upon failure.</p>
      *
      * <p>This method is not meant to be called from application-level code outside of this package (hence
@@ -286,19 +191,6 @@ public class VaultConfig implements Serializable {
     void setRetryIntervalMilliseconds(final int retryIntervalMilliseconds) {
         this.retryIntervalMilliseconds = retryIntervalMilliseconds;
     }
-
-    /**
-     * <p>Sets the global Engine version for this Vault Config instance. If no KV Engine version map is provided, use this version
-     * globally.</p>
-     * If the provided KV Engine version map does not contain a requested secret, or when writing new secrets, fall back to this version.
-     *
-     * @param engineVersion The version of the Vault KV Engine to use globally.
-     */
-    void setEngineVersion(final Integer engineVersion) {
-        this.globalEngineVersion = engineVersion;
-    }
-
-
 
     /**
      * <p>This is the terminating method in the builder pattern.  The method that validates all of the fields that
@@ -345,10 +237,6 @@ public class VaultConfig implements Serializable {
         return this;
     }
 
-    public Map<String, String> getSecretsEnginePathMap() {
-        return secretsEnginePathMap;
-    }
-
     public String getAddress() {
         return address;
     }
@@ -377,16 +265,8 @@ public class VaultConfig implements Serializable {
         return retryIntervalMilliseconds;
     }
 
-    public Integer getGlobalEngineVersion() {
-        return globalEngineVersion;
-    }
-
     public String getNameSpace() {
         return nameSpace;
-    }
-
-    public int getPrefixPathDepth() {
-       return prefixPathDepth;
     }
 }
 

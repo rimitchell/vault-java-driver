@@ -92,7 +92,7 @@ public class LogicalResponse extends VaultResponse {
                 }
             }
             // For list operations convert the array of keys to a list of values
-            if (operation.equals(Logical.logicalOperations.listV1) || operation.equals(Logical.logicalOperations.listV2)) {
+            if (operation.equals(Logical.logicalOperations.list) || operation.equals(Logical.logicalOperations.listV2)) {
                 if (
                         getRestResponse().getStatus() != 404
                                 && data.get("keys") != null
